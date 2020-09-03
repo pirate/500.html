@@ -1,4 +1,4 @@
-# 502.html
+# 500.html
 A nice 500.html page template to use in django/jinja2 projects.
 
 ![](https://raw.githubusercontent.com/pirate/500.html/master/screenshot.png)
