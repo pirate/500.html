@@ -1,0 +1,163 @@
+<html>
+    <head>
+        <title>Error 500 | Server error</title>
+
+        <style>
+            html, body {
+                font-family: Helvetica, sans-serif;
+                background-color: #fafafa;
+            }
+            h1 {
+                font-family: 'Gill Sans', Arial, sans-serif;
+                font-weight: 200;
+                font-size: 2.4em;
+            }
+            h1 small {
+                display: block;
+                opacity: 0.3;
+                margin: 20px;
+                font-size: 0.7em;
+            }
+            .info {
+                display: block;
+                font-weight: 200;
+                background-color: #f6f6f6;
+                padding: 30px;
+                border-radius: 8px;
+            }
+            .details {
+                opacity: 0.7;
+            }
+            .btn {
+                display: inline-block;
+                padding: 10px;
+                background-color: #e2e2e1;
+                border-radius: 4px;
+                text-decoration: none;
+                box-shadow: 4px 4px 4px rgba(0,0,0,0.02);
+                margin: 20px;
+                font-size: 1.2em;
+                font-weight: 200;
+                opacity: 0.7;
+            }
+            .btn:hover {
+                opacity: 0.9;
+            }
+            .error-icon {
+                width: 80px;
+                margin-top: 6vh;
+                margin-bottom: 4vh;
+                opacity: 0.2;
+            }
+            pre {
+                background-color: rgba(251, 247, 208, 0.63);
+                border-radius: 4px;
+                padding: 20px;
+                max-width: 400px;
+                margin: auto;
+                box-shadow: 4px 4px 4px rgba(251, 247, 208, 0.02);
+            }
+            pre #headers {
+                opacity: 0.5;
+            }
+            pre .btn {
+                font-size: 1em;
+                margin: 5px 10px;
+                color: #333;
+            }
+            footer {
+                opacity: 0.4;
+                font-weight: 200;
+            }
+        </style>
+    </head>
+    <body>
+        <center>
+            <img src="/static/errors/error.jpg" class="error-icon" title="Sad computer"/>
+            
+            <div class="info">
+                <h1>
+                    This page is temporarily unavailable.
+                    <small>
+                        Error <span id="status-code" style="opacity: 0.5">500</span>
+                    </small>
+                </h1>
+                
+                <span class="details">
+                    Either the site is down temporarily, or this page encountered an error while loading.<br/><br/>
+                    If the error persists for more than a few minutes, we recommend contacting support to fix it.
+                </span>
+                
+                <br/><br/><br/>
+                
+                <a href="javascript:history.back()" class="btn">⏪ Go back to previous page</a>
+                <a href="?" class="btn">♻️ Refresh this page</a>
+                <a href="#chat" class="btn">💬 Open a live support chat</a>
+                
+                <br/><br/><br/>
+                
+                <div class="details">
+                    <a href="/">Home</a> &nbsp; &nbsp; &nbsp;
+                    <a href="/accounts/login/">Login</a> &nbsp; &nbsp; &nbsp;
+                    <a href="https://example.com">Support</a>
+                </div>
+            </div>
+
+            <br/><br/>
+            
+            <pre>
+                <br/>
+                <span id="url" style="opacity: 0.7"></span>
+                <br/><br/>
+                <span id="headers">Loading debug info...</span><br/>
+                {% if sentry_event_id %}
+                    <br/>
+                    <span name="sentry_event_id:{{sentry_event_id}}">Sentry event id: {{sentry_event_id}}</span><br/>
+                {% endif %}
+                <a id="report-url" href="https://github.com/example/example/issues/new?template=bug_report.md" class="btn" title="You must be logged in on Github.com first.">
+                    Report issue on Github
+                </a>
+                <br/>
+            </pre>
+            
+            <br/><br/>
+           
+            <footer>
+                Examplecorp © 2019
+            </footer>
+        </center>
+
+        <script>
+            const status_elem = document.getElementById('status-code')
+            const url_elem = document.getElementById('url')
+            const errors_elem = document.getElementById('headers')
+            const report_elem = document.getElementById('report-url')
+            url_elem.innerHTML = document.location.toString()
+            fetch(document.location, {
+                method: 'GET',
+                credentials: 'include'
+            }).then(
+                response => {
+                    status_elem.innerHTML = response.status;
+                    status_elem.style.opacity = 1;
+                    errors_elem.innerHTML = '';
+                    response.headers.forEach((val, name) => errors_elem.innerHTML += (name + '=' + val + '<br/>'));
+                    errors_elem.innerHTML += '<br/>' + response.statusText
+
+                    const encoded_url = encodeURIComponent(document.location.toString())
+                    const encoded_issue_body = encodeURIComponent(
+                        '## URL\n' +
+                        '```\n' +
+                        document.location.toString() +
+                        '\n```\n\n' + 
+                        '## Headers\n' + 
+                        '```\n' + 
+                        errors_elem.innerHTML.replace(/<br>/g, '\n') + 
+                        '\n```'
+                    )
+                    report_elem.href = `${report_elem.href}&title=${response.status}+Error+on+${encoded_url}&body=${encoded_issue_body}`
+                }
+            )
+        </script>
+    </body>
+</html>
